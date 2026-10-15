@@ -1,0 +1,6 @@
+book_id,title,reservable
+B001,Linux入門,yes
+B002,Shell實務,yes
+B003,館內參考資料,no
+B004,資料整理,yes
+B005,Linux系統管理,yes

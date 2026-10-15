@@ -1,0 +1,9 @@
+# 作業系統產生的暫存檔
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 編輯器產生的暫存檔與備份
+*.swp
+*.swo
+*~
