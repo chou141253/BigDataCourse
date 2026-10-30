@@ -1,0 +1,42 @@
+name: Project 2 permissions
+
+on:
+  pull_request:
+    paths:
+      - '第三周資料/project2/**'
+      - 'tests/project2-integration.sh'
+      - '.github/workflows/project2.yml'
+  push:
+    branches: [main]
+    paths:
+      - '第三周資料/project2/**'
+      - 'tests/project2-integration.sh'
+      - '.github/workflows/project2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Native permissions (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: /bin/bash --noprofile --norc -eo pipefail {0}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check shell syntax with the system Bash
+        run: |
+          for script in '第三周資料/project2/'*.sh tests/project2-integration.sh; do
+            /bin/bash -n "$script"
+          done
+      - name: Exercise real local accounts and file permissions
+        run: /bin/bash tests/project2-integration.sh

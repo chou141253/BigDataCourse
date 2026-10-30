@@ -1485,21 +1485,22 @@ PROJECT 仍指向這裡，不會自動改成教材位置。
 
 ### 各專案的操作位置
 
-專案一在 $HOME/example_data/project1；專案二在 /srv/course-library。
+專案一在 $HOME/example_data/project1；專案二在 Linux 的 /srv/course-library。Mac 原生專案二使用 /Users/Shared/course-library，準備方式見 [macOS 指南](../project2/MACOS.md)。
 後面會先確認位置與身分，再開始實作。
 
 ## 58. 取得課程教材
 
-在教師提供的 GitHub 課程儲存庫按 Code，選 HTTPS 並複製網址。先看完整命令形式：
+先取得整份課程儲存庫，再將其中的「第三周資料」準備成課堂使用的工作副本。以下供已能使用 Git 的同學操作；已有儲存庫時沿用，不必再次 clone。Mac 同學也可依 [macOS 指南](../project2/MACOS.md) 下載 ZIP，無須為專案二另外安裝 Git。
 
 ```bash
 cd "$HOME"
-git clone https://github.com/example-org/linux-course.git example_data
+git clone https://github.com/chou141253/BigDataCourse.git
+cd "$HOME/BigDataCourse"
 ```
 
-上面的網址是假設示例。請將它換成教師提供的實際課程網址，再執行；最後的 example_data 指定下載後的資料夾名稱。已有教材時沿用原資料夾。
+本儲存庫的 project1/、project2/ 位於「第三周資料」內，沒有直接放在儲存庫根目錄。請依 [教材入口的取得本週教材](../README.md#取得本週教材)，將「第三周資料」複製為 `$HOME/example_data`；已有這份工作副本時，確認內容並沿用。
 
-下載完成後，依專案說明確認 `$HOME/example_data` 的內容，再進入 project1/。PROJECT 仍是之前的 linux-lab 練習目錄，不會自動改成教材位置。
+準備完成後，應能找到 `$HOME/example_data/project1/daily.sh`，再依專案說明進入 project1/。不要把整份儲存庫直接命名為 example_data，否則會多出「第三周資料」這一層。PROJECT 仍是之前的 linux-lab 練習目錄，不會自動改成教材位置。
 
 ## 完成後留下的練習檔案
 

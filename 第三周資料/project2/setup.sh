@@ -5,6 +5,13 @@
 set -eu
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
+# macOS 使用本機 Directory Services；Linux 保留原有教學環境。
+case "$(uname -s)" in
+    Darwin) exec /bin/bash "$(dirname "$0")/setup-macos.sh" "$@" ;;
+    Linux) ;;
+    *) echo '停止：本教材的初始化僅支援 Ubuntu／Debian Linux 與 macOS。' >&2; exit 1 ;;
+esac
+
 BASE=/srv/course-library
 STAFF=library_staff
 AMY=clerk_amy
