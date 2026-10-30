@@ -49,10 +49,13 @@ mac_unlock() {
 
 # 輸出 Directory Services 的一個屬性，各值一行；本程式驗證的值均不含空白。
 mac_values() {
-    local output
+    local output native_key
     output=$(dscl "$NODE" -read "$1" "$2") || return 1
-    printf '%s\n' "$output" | awk -v key="$2:" '
-        NR == 1 { if ($1 != key) exit 1; first = 2 }
+    # dscl 會移除標準屬性的前綴，但保留 native 前綴；本程式只有 IsHidden 使用 native 屬性。
+    native_key=
+    case "$2" in IsHidden) native_key=dsAttrTypeNative:IsHidden: ;; esac
+    printf '%s\n' "$output" | awk -v key="$2:" -v native_key="$native_key" '
+        NR == 1 { if ($1 != key && (native_key == "" || $1 != native_key)) exit 1; first = 2 }
         NR > 1 { first = 1 }
         { for (i = first; i <= NF; i++) print $i }
     '
