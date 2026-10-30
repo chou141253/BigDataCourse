@@ -19,7 +19,7 @@ mac_require() {
     [ "$(uname -s)" = Darwin ] || stop '此腳本僅適用於 macOS。'
     [ "$(id -u)" -eq 0 ] || stop '請用有管理員授權的帳號執行 sudo bash setup.sh（清理請使用 cleanup-macos.sh --confirm）。'
     for cmd in dscl dseditgroup dscacheutil uuidgen stat awk grep sort tr sed ls cp mv rm mkdir rmdir chmod chown; do
-        command -v "$cmd" >/dev/null 2>&1 || stop "環境缺少 $cmd。"
+        command -v "$cmd" >/dev/null 2>&1 || stop "環境缺少 ${cmd}。"
     done
     [ -x /usr/bin/false ] && [ -d /var/empty ] || stop '找不到 macOS 的非登入帳號基本環境。'
     [ -d /Users/Shared ] && [ ! -L /Users/Shared ] || stop '/Users/Shared 必須是一般目錄。'
@@ -29,7 +29,7 @@ mac_require() {
 mac_lock() {
     # 父目錄由系統 root 管理；setup 和 cleanup 共用一把鎖。
     mkdir -m 700 "$LOCK" 2>/dev/null ||
-        stop "已有初始化／清理工作，或上次被強制中止留下鎖：$LOCK。請先由教師確認沒有執行中的工作。"
+        stop "已有初始化／清理工作，或上次被強制中止留下鎖：${LOCK}。請先由教師確認沒有執行中的工作。"
     LOCKED=1
 }
 
@@ -159,7 +159,7 @@ mac_check_base() {
         case "$name" in
             books.csv|reservations.csv|internal.txt|handover.txt|.course-library-macos)
                 mac_regular_root_file "$path" ;;
-            *) stop "練習目錄有額外項目 $name；請先移出保存，未變更任何練習資源。" ;;
+            *) stop "練習目錄有額外項目 ${name}；請先移出保存，未變更任何練習資源。" ;;
         esac
     done
 }

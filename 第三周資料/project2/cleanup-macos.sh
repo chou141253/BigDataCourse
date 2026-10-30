@@ -7,8 +7,18 @@ HERE=$(cd -P "$(dirname "$0")" && pwd)
 umask 077
 mac_require
 [ "$#" -eq 1 ] && [ "$1" = --confirm ] || stop '請先另存作業，再執行 sudo bash cleanup-macos.sh --confirm。'
+CLEANUP_DONE=0
+finish_cleanup() {
+    local status=$?
+    trap - EXIT HUP INT TERM
+    set +e
+    # 保留失敗碼；即使舊版 Bash 在展開錯誤後傳入 0，也不得把未完成清理當成成功。
+    if [ "$CLEANUP_DONE" != 1 ] && [ "$status" -eq 0 ]; then status=1; fi
+    mac_unlock
+    exit "$status"
+}
 mac_lock
-trap mac_unlock EXIT
+trap finish_cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 129' HUP
 trap 'exit 143' TERM
@@ -27,4 +37,5 @@ dscacheutil -flushcache
 for file in $FILES; do rm -f "$BASE/$file"; done
 rm "$MANIFEST"
 rmdir "$BASE"
+CLEANUP_DONE=1
 printf '%s\n' '已移除本練習的兩個館員帳號、館員群組與四個資料檔。本人帳號與群組均未變更。'

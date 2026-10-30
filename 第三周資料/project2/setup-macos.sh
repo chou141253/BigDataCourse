@@ -8,7 +8,7 @@ umask 077
 mac_require
 [ "$#" -eq 0 ] || stop '本腳本不接受參數；請執行 sudo bash setup.sh。'
 for file in $FILES; do
-    [ -f "$HERE/$file" ] && [ ! -L "$HERE/$file" ] || stop "教材缺少一般檔案 $file。"
+    [ -f "$HERE/$file" ] && [ ! -L "$HERE/$file" ] || stop "教材缺少一般檔案 ${file}。"
 done
 
 FRESH=0 BASE_CREATED=0 NEW_STAFF=0 NEW_AMY=0 NEW_BEN=0 DONE=0
@@ -39,6 +39,8 @@ finish() {
     trap - EXIT HUP INT TERM
     set +e
     if [ "$DONE" != 1 ]; then
+        # 舊版 Bash 的展開錯誤可能讓 EXIT trap 看見 0；未完成初始化不能回報成功。
+        [ "$status" -ne 0 ] || status=1
         ok=1
         for file in $REPLACED; do
             if [ -f "$LOCK/backup/$file" ]; then
@@ -151,4 +153,4 @@ printf '專案二已準備在 %s\n' "$BASE"
 printf '示範帳號：%s、%s；共同群組：%s\n' "$AMY" "$BEN" "$STAFF"
 printf '%s\n' '這是真正的 macOS 本機非登入帳號；未修改本人帳號、本人群組或 sudoers。' \
     '再次執行會還原四個練習檔案與權限，作答途中請勿重跑。' \
-    '完成作業並另存結果後，可用 sudo bash cleanup-macos.sh --confirm 清理本練習。'
+    '完成作業並另存結果後，回到教材的 project2 目錄，再執行 sudo bash cleanup-macos.sh --confirm。'
