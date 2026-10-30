@@ -269,23 +269,32 @@ if [ "$SYSTEM" = Darwin ]; then
 
     expect_failure sudo -n /bin/bash "$CLEANUP"
     equal "$(identities)" "$ORIGINAL_IDENTITIES" 'Cleanup requires explicit confirmation'
+    pass 'Mac cleanup requires explicit confirmation'
 
     printf 'keep this extra file\n' | sudo -n tee "$BASE/extra.txt" >/dev/null
     expect_failure sudo -n /bin/bash "$CLEANUP" --confirm
     equal "$(sudo -n cat "$BASE/extra.txt")" 'keep this extra file' 'Cleanup preserves unknown files'
     equal "$(identities)" "$ORIGINAL_IDENTITIES" 'Rejected cleanup does not remove accounts'
     sudo -n rm "$BASE/extra.txt"
+    pass 'Mac cleanup preserves extra files and all account identities'
 
-    # A reused account name with a different UUID must not be deleted.
-    AMY_UUID=$(dscl . -read "/Users/$AMY" GeneratedUID | awk '{print $2}')
-    sudo -n dscl . -create "/Users/$AMY" GeneratedUID "$(uuidgen)"
+    # Test an identity mismatch without rewriting a macOS-protected GeneratedUID.
+    # Only the root-owned manifest's expected Amy UUID changes; real accounts stay intact.
+    MAC_MANIFEST="$BASE/.course-library-macos"
+    sudo -n cat "$MAC_MANIFEST" > "$TEST_TMP/manifest-original"
+    awk -v account="$AMY" -v uuid="$(uuidgen)" '
+        $1 == account { $3=uuid; changed++ }
+        { print }
+        END { if (changed != 1) exit 1 }
+    ' "$TEST_TMP/manifest-original" > "$TEST_TMP/manifest-mismatched"
+    sudo -n cp "$TEST_TMP/manifest-mismatched" "$MAC_MANIFEST"
+    equal "$(metadata "$MAC_MANIFEST")" '600:0:0' 'Mismatched manifest retains protected permissions'
     expect_failure sudo -n /bin/bash "$CLEANUP" --confirm
-    id "$AMY" >/dev/null
-    id "$BEN" >/dev/null
+    equal "$(identities)" "$ORIGINAL_IDENTITIES" 'Manifest mismatch preserves real account identities'
     [ -d "$BASE" ] || fail 'Rejected cleanup removed the exercise directory.'
-    sudo -n dscl . -create "/Users/$AMY" GeneratedUID "$AMY_UUID"
-    sudo -n dscacheutil -flushcache
-    equal "$(identities)" "$ORIGINAL_IDENTITIES" 'Restored test account UUID'
+    sudo -n cp "$TEST_TMP/manifest-original" "$MAC_MANIFEST"
+    sudo -n cmp "$TEST_TMP/manifest-original" "$MAC_MANIFEST"
+    pass 'Mac cleanup rejects a manifest identity mismatch without deleting accounts'
 
     cd /
     sudo -n /bin/bash "$CLEANUP" --confirm
